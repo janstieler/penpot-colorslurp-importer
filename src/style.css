@@ -205,6 +205,50 @@ textarea#input.error { border-color: var(--error); }
   margin-top: 14px;
 }
 
+.coming-soon {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.coming-soon-badge {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--fg2);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.palette-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.palette-header .palette-count {
+  margin-bottom: 0;
+}
+
+.prefix-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--fg2);
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.prefix-checkbox {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.footer-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 button.btn-primary {
   width: 100%;
   padding: 9px;
