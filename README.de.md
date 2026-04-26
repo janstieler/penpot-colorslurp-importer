@@ -2,7 +2,7 @@
 
 ![headerimage](headerimage.jpg)
 
-[![Badge](https://forthebadge.com/api/badges/generate?primaryLabel=Lang&secondaryLabel=EN&primaryBGColor=%23555555&secondaryBGColor=%23D05A45)]()
+[![Badge](https://forthebadge.com/api/badges/generate?primaryLabel=Lang&secondaryLabel=EN&primaryBGColor=%23555555&secondaryBGColor=%23D05A45)](https://github.com/janstieler/penpot-colorslurp-importer/blob/main/README.md)
 
 Ein [Penpot](https://penpot.app)-Plugin, das [ColorSlurp](https://colorslurp.com)-Farbpaletten direkt in die lokale Farbbibliothek von Penpot importiert.
 
