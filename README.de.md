@@ -22,7 +22,7 @@ Farbpaletten aus [ColorSlurp](https://colorslurp.com) in Sekunden nach [Penpot](
 2. Mit `Ctrl + Alt + P` den Plugin-Manager öffnen
 3. Die Manifest-URL eingeben:
    ```
-   https://webdev.kdjfs.de/colorslurp-importer/manifest.json
+   https://janstieler.github.io/penpot-colorslurp-importer/dist/manifest.json
    ```
 4. Auf **Installieren** klicken — das Plugin steht ab sofort in Penpot zur Verfügung
 
@@ -62,7 +62,7 @@ In ColorSlurp die gewünschte Palette öffnen und als **JSON** exportieren. Die 
 
 ```bash
 git clone https://github.com/janstieler/penpot-colorslurp-importer
-cd colorslurp-importer
+cd penpot-colorslurp-importer
 npm install
 ```
 

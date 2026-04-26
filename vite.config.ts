@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import livePreview from "vite-live-preview";
 
 export default defineConfig({
+  base: "./",
   plugins: [
     livePreview({
       reload: true,
@@ -12,7 +13,6 @@ export default defineConfig({
       },
     }),
   ],
-  base: "./",
   build: {
     rollupOptions: {
       input: {

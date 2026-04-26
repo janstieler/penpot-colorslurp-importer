@@ -3,6 +3,6 @@
   "description": "Importiert ColorSlurp-Paletten in die Penpot Color Library",
   "host": "https://janstieler.github.io/penpot-colorslurp-importer/dist/",
   "code": "penpot-colorslurp-importer/dist/plugin.js",
-  "icon": "icon.png",
+  "icon": "https://janstieler.github.io/penpot-colorslurp-importer/dist/icon.png",
   "permissions": ["library:read", "library:write"]
 }
