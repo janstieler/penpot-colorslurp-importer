@@ -4,5 +4,5 @@
   "host": "https://webdev.kdjfs.de/colorslurp-importer/",
   "code": "colorslurp-importer/plugin.js",
   "icon": "/colorslurp-importer/icon.png",
-  "permissions": ["library:read", "library:write"]
+  "permissions": ["library:read", "library:write", "user:read"]
 }

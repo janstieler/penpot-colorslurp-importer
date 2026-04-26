@@ -22,9 +22,11 @@ p.sub {
   margin-bottom: 12px;
 }
 
+/* ── Textarea ───────────────────────────────────────────────────── */
+
 textarea {
   width: 100%;
-  height: 160px;
+  height: 180px;
   resize: vertical;
   border: 2px dashed var(--db-quaternary, #444);
   border-radius: 6px;
@@ -45,26 +47,50 @@ textarea.error {
   border-color: #e03131;
 }
 
-.swatch-row {
+/* ── Buttons ────────────────────────────────────────────────────── */
+
+.btn-primary {
+  width: 100%;
+  margin-top: 12px;
+  padding: 9px;
+  border-radius: 6px;
+  border: none;
+  background: var(--accent, #7950f2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:not(:disabled):hover { opacity: 0.85; }
+
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--df-secondary, #aaa);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 8px 0 0;
+  line-height: 1;
+}
+
+.btn-back:hover { color: var(--df-primary, #ececec); }
+
+/* ── Step 2 header ──────────────────────────────────────────────── */
+
+.step2-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 10px;
+  align-items: center;
+  margin-bottom: 12px;
 }
-
-.swatch {
-  width: 28px;
-  height: 28px;
-  border-radius: 4px;
-  border: 1px solid rgba(255,255,255,0.1);
-  cursor: default;
-  transition: transform 0.1s;
-}
-
-.swatch:hover { transform: scale(1.2); }
 
 .palette-name {
-  margin-top: 8px;
   font-size: 11px;
   color: var(--df-secondary, #aaa);
 }
@@ -73,68 +99,82 @@ textarea.error {
   color: var(--df-primary, #ececec);
 }
 
-.actions {
+/* ── Swatch grid ────────────────────────────────────────────────── */
+
+.swatch-grid {
   display: flex;
-  gap: 8px;
-  margin-top: 14px;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-button {
-  flex: 1;
-  padding: 9px;
-  border-radius: 6px;
+.swatch-wrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
   cursor: pointer;
-  border: none;
-  font-size: 13px;
-  font-weight: 500;
-  transition: opacity 0.2s;
+  opacity: 0.3;
+  transition: opacity 0.15s, transform 0.1s;
 }
 
-button:disabled {
-  opacity: 0.35;
+.swatch-wrapper.selected {
+  opacity: 1;
+}
+
+.swatch-wrapper.selected:hover {
+  transform: scale(1.12);
+}
+
+.swatch-wrapper.duplicate {
+  opacity: 0.2;
   cursor: not-allowed;
 }
 
-.btn-import {
-  background: var(--accent, #7950f2);
-  color: #fff;
+.swatch {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.btn-import:not(:disabled):hover { opacity: 0.85; }
-
-.btn-copy {
-  background: var(--db-quaternary, #444);
-  color: var(--df-primary, #ececec);
+.swatch-wrapper.selected::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 7px;
+  border: 2px solid var(--accent, #7950f2);
+  pointer-events: none;
 }
 
-.btn-copy:not(:disabled):hover { opacity: 0.75; }
+/* ── Prefix checkbox ────────────────────────────────────────────── */
+
+.prefix-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--df-secondary, #aaa);
+  cursor: pointer;
+  user-select: none;
+}
+
+.prefix-label input[type="checkbox"] {
+  accent-color: var(--accent, #7950f2);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+}
+
+/* ── Status ─────────────────────────────────────────────────────── */
 
 .status {
-  margin-top: 12px;
+  margin-top: 10px;
   font-size: 12px;
-  min-height: 18px;
+  min-height: 16px;
   text-align: center;
 }
 
 .status.error   { color: #e03131; }
 .status.success { color: #40c057; }
 .status.info    { color: var(--df-secondary, #aaa); }
-
-.divider {
-  border: none;
-  border-top: 1px solid var(--db-quaternary, #333);
-  margin: 14px 0;
-}
-
-.token-preview {
-  background: var(--db-secondary, #2a2a2a);
-  border-radius: 6px;
-  padding: 8px;
-  font-size: 10px;
-  font-family: monospace;
-  max-height: 100px;
-  overflow-y: auto;
-  display: none;
-  color: var(--df-secondary, #aaa);
-  white-space: pre;
-}

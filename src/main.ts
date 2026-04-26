@@ -4,32 +4,36 @@ const i18n = {
   de: {
     title:      "ColorSlurp → Penpot",
     sub:        "ColorSlurp JSON einfügen oder hineinfallen lassen",
-    btnImport:  "In Penpot importieren",
-    btnCopy:    "Token-JSON kopieren",
+    btnNext:    "Weiter →",
+    btnImport:  "Importieren",
     waiting:    "Warte auf JSON…",
     importing:  "Importiere…",
-    copied:     "Token-JSON in Zwischenablage kopiert ✓",
-    copyFailed: "Kopieren fehlgeschlagen",
     palette:    "Palette",
     colors:     "Farben",
-    imported:   "Farben in Penpot Color Library importiert",
-    errFormat:  "Kein 'name' oder 'colors' Array gefunden",
+    selected:   "ausgewählt",
+    imported:   "Farben importiert",
+    errFormat:  "Kein 'name' oder 'colors'-Array gefunden",
     recognized: "Farben erkannt",
+    duplicate:  "bereits vorhanden",
+    prefix:     "Nummerierter Präfix (z. B. 01_Name)",
+    noneSelected: "Keine Farben ausgewählt",
   },
   en: {
     title:      "ColorSlurp → Penpot",
     sub:        "Paste or drop your ColorSlurp JSON here",
-    btnImport:  "Import into Penpot",
-    btnCopy:    "Copy Token JSON",
+    btnNext:    "Continue →",
+    btnImport:  "Import",
     waiting:    "Waiting for JSON…",
     importing:  "Importing…",
-    copied:     "Token JSON copied to clipboard ✓",
-    copyFailed: "Copy failed",
     palette:    "Palette",
     colors:     "colors",
-    imported:   "colors imported into Penpot Color Library",
+    selected:   "selected",
+    imported:   "colors imported",
     errFormat:  "Missing 'name' or 'colors' array",
     recognized: "colors detected",
+    duplicate:  "already in library",
+    prefix:     "Numbered prefix (e.g. 01_Name)",
+    noneSelected: "No colors selected",
   },
 };
 
@@ -38,98 +42,118 @@ type Color = { name: string; hex: string; alpha?: number };
 type Palette = { name: string; colors: Color[] };
 
 const browserLang = (navigator.language || "en").split("-")[0].toLowerCase() as Lang;
-let t = i18n[browserLang] ?? i18n.en;
+const t = i18n[browserLang] ?? i18n.en;
+
 let parsed: Palette | null = null;
-let tokenJson: Record<string, unknown> | null = null;
+let libraryColorNames: Set<string> = new Set();
+let selectedIndices: Set<number> = new Set();
 
-function applyTranslations(): void {
-  (document.getElementById("i18n-title") as HTMLElement).textContent = t.title;
-  (document.getElementById("i18n-sub") as HTMLElement).textContent   = t.sub;
-  (document.getElementById("btnImport") as HTMLButtonElement).textContent = t.btnImport;
-  (document.getElementById("btnCopy") as HTMLButtonElement).textContent   = t.btnCopy;
-  setStatus(t.waiting, "info");
-}
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-function setStatus(text: string, type: "info" | "success" | "error" = "info"): void {
-  const el = document.getElementById("status") as HTMLElement;
+function setStatus(id: string, text: string, type: "info" | "success" | "error" = "info"): void {
+  const el = document.getElementById(id) as HTMLElement;
   el.textContent = text;
   el.className = "status " + type;
 }
 
-function reset(): void {
-  parsed = null;
-  tokenJson = null;
-  (document.getElementById("swatches") as HTMLElement).innerHTML = "";
-  (document.getElementById("paletteName") as HTMLElement).innerHTML = "";
-  (document.getElementById("tokenPreview") as HTMLElement).style.display = "none";
-  (document.getElementById("btnImport") as HTMLButtonElement).disabled = true;
-  (document.getElementById("btnCopy") as HTMLButtonElement).disabled = true;
-}
-
-function colorslurpToTokens(input: Palette): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  result[input.name] = Object.fromEntries(
-    input.colors.map((c) => [c.name, { "$value": c.hex, "$type": "color", "$description": "" }])
-  );
-  result["$metadata"] = { tokenSetOrder: [input.name] };
-  return result;
+function showStep(step: 1 | 2): void {
+  (document.getElementById("step1") as HTMLElement).style.display = step === 1 ? "" : "none";
+  (document.getElementById("step2") as HTMLElement).style.display = step === 2 ? "" : "none";
 }
 
 function stripTrailingCommas(str: string): string {
   return str.replace(/,\s*([}\]])/g, "$1");
 }
 
-function processJson(raw: string): void {
-  reset();
+function fullColorName(paletteName: string, colorName: string, index: number, usePrefix: boolean): string {
+  const prefix = usePrefix ? `${String(index + 1).padStart(2, "0")}_` : "";
+  return `${paletteName}/${prefix}${colorName}`;
+}
+
+// ── Step 2: render swatches ───────────────────────────────────────────────────
+
+function renderSwatches(): void {
+  if (!parsed) return;
+
+  const usePrefix = (document.getElementById("usePrefix") as HTMLInputElement).checked;
+  const grid = document.getElementById("swatches") as HTMLElement;
+  grid.innerHTML = "";
+  selectedIndices.clear();
+
+  parsed.colors.forEach((c, i) => {
+    const name = fullColorName(parsed!.name, c.name, i, usePrefix);
+    const isDuplicate = libraryColorNames.has(name);
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "swatch-wrapper" + (isDuplicate ? " duplicate" : " selected");
+    if (!isDuplicate) selectedIndices.add(i);
+
+    const dot = document.createElement("div");
+    dot.className = "swatch";
+    dot.style.background = c.hex;
+    dot.title = `${c.name}: ${c.hex}${isDuplicate ? ` (${t.duplicate})` : ""}`;
+
+    if (!isDuplicate) {
+      wrapper.addEventListener("click", () => {
+        const isSelected = wrapper.classList.toggle("selected");
+        if (isSelected) {
+          selectedIndices.add(i);
+        } else {
+          selectedIndices.delete(i);
+        }
+        updateImportButton();
+      });
+    }
+
+    wrapper.appendChild(dot);
+    grid.appendChild(wrapper);
+  });
+
+  updateImportButton();
+}
+
+function updateImportButton(): void {
+  const count = selectedIndices.size;
+  const btn = document.getElementById("btnImport") as HTMLButtonElement;
+  btn.disabled = count === 0;
+  if (count === 0) {
+    setStatus("status2", t.noneSelected, "info");
+  } else {
+    setStatus("status2", `${count} ${t.colors} ${t.selected}`, "info");
+  }
+}
+
+// ── Step 1: JSON parsing ──────────────────────────────────────────────────────
+
+function parseJson(raw: string): void {
   if (!raw.trim()) {
-    setStatus(t.waiting, "info");
+    setStatus("status1", t.waiting, "info");
     (document.getElementById("input") as HTMLTextAreaElement).classList.remove("error");
+    (document.getElementById("btnNext") as HTMLButtonElement).disabled = true;
+    parsed = null;
     return;
   }
   try {
     const data = JSON.parse(stripTrailingCommas(raw));
-    if (!data.name || !Array.isArray(data.colors)) {
-      throw new Error(t.errFormat);
-    }
+    if (!data.name || !Array.isArray(data.colors)) throw new Error(t.errFormat);
     parsed = data as Palette;
-
     (document.getElementById("input") as HTMLTextAreaElement).classList.remove("error");
-
-    const swatchRow = document.getElementById("swatches") as HTMLElement;
-    parsed.colors.forEach((c) => {
-      const el = document.createElement("div");
-      el.className = "swatch";
-      el.style.background = c.hex;
-      el.title = `${c.name}: ${c.hex}`;
-      swatchRow.appendChild(el);
-    });
-
-    const nameEl = document.getElementById("paletteName") as HTMLElement;
-    nameEl.textContent = "";
-    const strong = document.createElement("strong");
-    strong.textContent = parsed.name;
-    nameEl.append(`${t.palette}: `, strong, ` · ${parsed.colors.length} ${t.colors}`);
-
-    tokenJson = colorslurpToTokens(parsed);
-    const preview = document.getElementById("tokenPreview") as HTMLElement;
-    preview.textContent = JSON.stringify(tokenJson, null, 2);
-    preview.style.display = "block";
-
-    (document.getElementById("btnImport") as HTMLButtonElement).disabled = false;
-    (document.getElementById("btnCopy") as HTMLButtonElement).disabled = false;
-    setStatus(`✓ ${parsed.colors.length} ${t.recognized}`, "success");
-
+    setStatus("status1", `✓ ${parsed.colors.length} ${t.recognized}`, "success");
+    (document.getElementById("btnNext") as HTMLButtonElement).disabled = false;
   } catch (err) {
     (document.getElementById("input") as HTMLTextAreaElement).classList.add("error");
-    setStatus("⚠ " + (err as Error).message, "error");
+    setStatus("status1", "⚠ " + (err as Error).message, "error");
+    (document.getElementById("btnNext") as HTMLButtonElement).disabled = true;
+    parsed = null;
   }
 }
 
-// ── Events ───────────────────────────────────────────────────────────────────
+// ── Events: Step 1 ───────────────────────────────────────────────────────────
+
 const textarea = document.getElementById("input") as HTMLTextAreaElement;
 
 textarea.addEventListener("input", (e) => {
-  processJson((e.target as HTMLTextAreaElement).value);
+  parseJson((e.target as HTMLTextAreaElement).value);
 });
 
 textarea.addEventListener("dragover", (e) => e.preventDefault());
@@ -140,33 +164,77 @@ textarea.addEventListener("drop", (e) => {
   const reader = new FileReader();
   reader.onload = (ev) => {
     textarea.value = ev.target?.result as string;
-    processJson(textarea.value);
+    parseJson(textarea.value);
   };
   reader.readAsText(file);
 });
 
-(document.getElementById("btnImport") as HTMLButtonElement).addEventListener("click", () => {
+(document.getElementById("btnNext") as HTMLButtonElement).addEventListener("click", () => {
   if (!parsed) return;
-  (document.getElementById("btnImport") as HTMLButtonElement).disabled = true;
-  setStatus(t.importing, "info");
-  parent.postMessage({ type: "import-colors", paletteName: parsed.name, colors: parsed.colors }, "*");
+  parent.postMessage({ type: "get-library-colors" }, "*");
 });
 
-(document.getElementById("btnCopy") as HTMLButtonElement).addEventListener("click", () => {
-  if (!tokenJson) return;
-  navigator.clipboard
-    .writeText(JSON.stringify(tokenJson, null, 2))
-    .then(() => setStatus(t.copied, "success"))
-    .catch(() => setStatus(t.copyFailed, "error"));
+// ── Events: Step 2 ───────────────────────────────────────────────────────────
+
+(document.getElementById("btnBack") as HTMLButtonElement).addEventListener("click", () => {
+  showStep(1);
+});
+
+(document.getElementById("usePrefix") as HTMLInputElement).addEventListener("change", () => {
+  renderSwatches();
+});
+
+(document.getElementById("btnImport") as HTMLButtonElement).addEventListener("click", () => {
+  if (!parsed || selectedIndices.size === 0) return;
+
+  const usePrefix = (document.getElementById("usePrefix") as HTMLInputElement).checked;
+  const colors = Array.from(selectedIndices).map((i) => {
+    const c = parsed!.colors[i];
+    return {
+      name: fullColorName(parsed!.name, c.name, i, usePrefix),
+      hex: c.hex,
+      alpha: c.alpha ?? 1,
+    };
+  });
+
+  (document.getElementById("btnImport") as HTMLButtonElement).disabled = true;
+  setStatus("status2", t.importing, "info");
+  parent.postMessage({ type: "import-colors", colors }, "*");
 });
 
 // ── Penpot messages ───────────────────────────────────────────────────────────
+
 window.addEventListener("message", (e: MessageEvent) => {
-  const msg = e.data as { type: string; count?: number };
+  const msg = e.data as { type: string; count?: number; colors?: { name: string }[] };
+
+  if (msg.type === "library-colors") {
+    libraryColorNames = new Set((msg.colors ?? []).map((c) => c.name));
+
+    const nameEl = document.getElementById("paletteName") as HTMLElement;
+    nameEl.textContent = "";
+    const strong = document.createElement("strong");
+    strong.textContent = parsed!.name;
+    nameEl.append(`${t.palette}: `, strong, ` · ${parsed!.colors.length} ${t.colors}`);
+
+    renderSwatches();
+    showStep(2);
+  }
+
   if (msg.type === "done") {
-    setStatus(`✅ ${msg.count ?? 0} ${t.imported}`, "success");
+    setStatus("status2", `✅ ${msg.count ?? 0} ${t.imported}`, "success");
     (document.getElementById("btnImport") as HTMLButtonElement).disabled = false;
   }
 });
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+function applyTranslations(): void {
+  (document.getElementById("i18n-title") as HTMLElement).textContent  = t.title;
+  (document.getElementById("i18n-sub") as HTMLElement).textContent    = t.sub;
+  (document.getElementById("btnNext") as HTMLButtonElement).textContent   = t.btnNext;
+  (document.getElementById("btnImport") as HTMLButtonElement).textContent = t.btnImport;
+  (document.getElementById("i18n-prefix") as HTMLElement).textContent = t.prefix;
+  setStatus("status1", t.waiting, "info");
+}
 
 applyTranslations();

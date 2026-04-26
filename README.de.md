@@ -61,8 +61,8 @@ In ColorSlurp die gewünschte Palette öffnen und als **JSON** exportieren. Die 
 ### Einrichtung
 
 ```bash
-git clone https://github.com/your-username/colorslurp-importer
-cd colorslurp-importer
+git clone https://github.com/janstieler/penpot-colorslurp-importer
+cd penpot-colorslurp-importer
 npm install
 ```
 
