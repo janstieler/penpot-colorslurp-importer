@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,30 +7,23 @@
   <script type="module" src="/src/main.ts"></script>
 </head>
 <body>
+  <h2 id="i18n-title">ColorSlurp → Penpot</h2>
+  <p class="sub" id="i18n-sub">ColorSlurp JSON einfügen oder hineinfallen lassen</p>
 
-  <!-- Step 1: JSON input -->
-  <div id="step1">
-    <h2 id="i18n-title">ColorSlurp → Penpot</h2>
-    <p class="sub" id="i18n-sub">Paste or drop your ColorSlurp JSON here</p>
-    <textarea id="input" placeholder='{"name":"My Palette","colors":[{"name":"Primary","hex":"#3B82F6"},...]}'></textarea>
-    <div class="status info" id="status1"></div>
-    <button class="btn-primary" id="btnNext" disabled id="btnNext">Continue →</button>
+  <textarea id="input" placeholder='{"name":"My Palette","colors":[{"name":"Primary","hex":"#3B82F6"},...]}'></textarea>
+
+  <div class="swatch-row" id="swatches"></div>
+  <div class="palette-name" id="paletteName"></div>
+
+  <hr class="divider" />
+
+  <pre class="token-preview" id="tokenPreview"></pre>
+
+  <div class="actions">
+    <button class="btn-import" id="btnImport" disabled>In Penpot importieren</button>
+    <button class="btn-copy" id="btnCopy" disabled>Token-JSON kopieren</button>
   </div>
 
-  <!-- Step 2: Swatch selection & import -->
-  <div id="step2" style="display:none">
-    <div class="step2-header">
-      <button class="btn-back" id="btnBack">←</button>
-      <div class="palette-name" id="paletteName"></div>
-    </div>
-    <div class="swatch-grid" id="swatches"></div>
-    <label class="prefix-label">
-      <input type="checkbox" id="usePrefix" />
-      <span id="i18n-prefix">Numbered prefix (e.g. 01_Name)</span>
-    </label>
-    <div class="status info" id="status2"></div>
-    <button class="btn-primary" id="btnImport" disabled>Import</button>
-  </div>
-
+  <div class="status info" id="status">Warte auf JSON…</div>
 </body>
 </html>
