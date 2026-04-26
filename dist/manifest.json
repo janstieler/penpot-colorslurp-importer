@@ -4,5 +4,5 @@
   "host": "https://janstieler.github.io/penpot-colorslurp-importer/dist/",
   "code": "plugin.js",
   "icon": "icon.png",
-  "permissions": ["library:read", "library:write", "user:read"]
+  "permissions": ["library:read", "library:write"]
 }
