@@ -22,7 +22,7 @@ Bring your color palettes from [ColorSlurp](https://colorslurp.com) into [Penpot
 2. Press `Ctrl + Alt + P` to open the Plugin Manager
 3. Enter the manifest URL:
    ```
-   https://webdev.kdjfs.de/colorslurp-importer/manifest.json
+   https://janstieler.github.io/penpot-colorslurp-importer/dist/manifest.json
    ```
 4. Click **Install** — the plugin is now available in Penpot
 

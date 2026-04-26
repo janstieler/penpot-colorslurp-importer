@@ -1,4 +1,4 @@
-penpot.ui.open("ColorSlurp Importer", "https://webdev.kdjfs.de/colorslurp-importer/index.html", { width: 400, height: 560 });
+penpot.ui.open("ColorSlurp Importer", "https://janstieler.github.io/penpot-colorslurp-importer/dist/index.html", { width: 400, height: 560 });
 
 penpot.ui.onMessage((msg: { type: string }) => {
     if (msg.type === "get-library-colors") {
