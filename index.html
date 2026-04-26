@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ColorSlurp Importer</title>
+  <script type="module" src="/src/main.ts"></script>
+</head>
+<body>
+  <h2 id="i18n-title">ColorSlurp → Penpot</h2>
+  <p class="sub" id="i18n-sub">ColorSlurp JSON einfügen oder hineinfallen lassen</p>
+
+  <textarea id="input" placeholder='{"name":"My Palette","colors":[{"name":"Primary","hex":"#3B82F6"},...]}'></textarea>
+
+  <div class="swatch-row" id="swatches"></div>
+  <div class="palette-name" id="paletteName"></div>
+
+  <hr class="divider" />
+
+  <pre class="token-preview" id="tokenPreview"></pre>
+
+  <div class="actions">
+    <button class="btn-import" id="btnImport" disabled>In Penpot importieren</button>
+    <button class="btn-copy" id="btnCopy" disabled>Token-JSON kopieren</button>
+  </div>
+
+  <div class="status info" id="status">Warte auf JSON…</div>
+</body>
+</html>
