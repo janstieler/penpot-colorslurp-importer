@@ -46,7 +46,7 @@ In ColorSlurp, open your palette and export it as **JSON**. The file looks like 
 
 1. Open the plugin in Penpot
 2. Paste the JSON or drag and drop the `.json` file into the text area
-3. Click **Weiter →** to see the color swatches
+3. Click **Next →** to see the color swatches
 4. Colors already present in your library are greyed out and deselected
 5. Optionally enable **numbered prefix** to keep the palette order intact in Penpot
 6. Select the colors you want and click **Import**
