@@ -4,7 +4,7 @@
 
 [![Badge](https://forthebadge.com/api/badges/generate?primaryLabel=Lang&secondaryLabel=EN&primaryBGColor=%23555555&secondaryBGColor=%23D05A45)](https://github.com/janstieler/penpot-colorslurp-importer/blob/main/README.md)
 
-Ein [Penpot](https://penpot.app)-Plugin, das [ColorSlurp](https://colorslurp.com)-Farbpaletten direkt in die lokale Farbbibliothek von Penpot importiert.
+Farbpaletten aus [ColorSlurp](https://colorslurp.com) in Sekunden nach [Penpot](https://penpot.app) übertragen. Palette als JSON in ColorSlurp exportieren, ins Plugin einfügen oder reinziehen, gewünschte Farben auswählen — und direkt in die lokale Farbbibliothek importieren.
 
 ## Funktionen
 
