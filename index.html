@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,29 +8,52 @@
 </head>
 <body>
 
-  <!-- Step 1: JSON input -->
-  <div id="step1">
-    <h2 id="i18n-title">ColorSlurp → Penpot</h2>
-    <p class="sub" id="i18n-sub">Paste or drop your ColorSlurp JSON here</p>
-    <textarea id="input" placeholder='{"name":"My Palette","colors":[{"name":"Primary","hex":"#3B82F6"},...]}'></textarea>
-    <div class="status info" id="status1"></div>
-    <button class="btn-primary" id="btnNext" disabled>Continue →</button>
+  <!-- Screen 1: Input -->
+  <div class="screen" id="screen1">
+    <h2>ColorSlurp → Penpot</h2>
+    <p class="sub">ColorSlurp JSON einfügen oder hineinfallen lassen</p>
+    <textarea id="input" placeholder='{"name":"My Palette","colors":[{"name":"Primary","hex":"#3B82F6"}]}'></textarea>
+    <div class="status info" id="status1">Warte auf JSON…</div>
+    <button class="btn-primary" id="btnAnalyze" disabled>Weiter →</button>
   </div>
 
-  <!-- Step 2: Swatch selection & import -->
-  <div id="step2" style="display:none">
-    <div class="step2-header">
-      <button class="btn-back" id="btnBack">←</button>
-      <div class="palette-name" id="paletteName"></div>
+  <!-- Screen 2: Results -->
+  <div class="screen hidden" id="screen2">
+    <button class="back-btn" id="btnBack">← Zurück</button>
+
+    <div class="palette-title" id="paletteName"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <div class="palette-count" id="paletteCount" style="margin-bottom:0"></div>
+      <button class="select-all-btn" id="btnSelectAll">Alle auswählen</button>
     </div>
+
     <div class="swatch-grid" id="swatches"></div>
-    <label class="prefix-label">
-      <input type="checkbox" id="usePrefix" />
-      <span id="i18n-prefix">Numbered prefix (e.g. 01_Name)</span>
-    </label>
-    <div class="status info" id="status2"></div>
-    <button class="btn-primary" id="btnImport" disabled>Import</button>
+
+    <hr class="divider" />
+
+    <div class="import-section">
+      <h3>Color Assets</h3>
+      <p>Farben direkt in die lokale Penpot Color Library importieren.</p>
+      <label style="display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fg2);margin-bottom:10px;cursor:pointer;">
+        <input type="checkbox" id="chkPrefix" style="accent-color:var(--accent);cursor:pointer;">
+        Reihenfolge beibehalten (nummerierten Präfix hinzufügen)
+      </label>
+      <button class="btn-primary" id="btnImportColors">In Color Library importieren</button>
+    </div>
+
+    <div class="import-section" style="opacity:0.4;pointer-events:none;">
+      <h3>Design Tokens <span style="font-size:10px;font-weight:400;color:var(--fg2);text-transform:none;letter-spacing:0;">— Coming Soon</span></h3>
+      <p>Direkt in Penpots Token-System importieren sobald die Plugin-API verfügbar ist.</p>
+      <button class="btn-secondary" disabled>Token-JSON importieren</button>
+    </div>
+
+    <div class="result-status info" id="status2"></div>
   </div>
+
+  <footer>
+    <span>© 2026 <a href="https://www.janstieler.de" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">Jan-Frederik Stieler</a></span>
+    <span>v1.0.0</span>
+  </footer>
 
 </body>
 </html>

@@ -1,8 +1,8 @@
 {
   "name": "ColorSlurp Importer",
   "description": "Importiert ColorSlurp-Paletten in die Penpot Color Library",
-  "host": "https://janstieler.github.io/penpot-colorslurp-importer/dist/",
-  "code": "penpot-colorslurp-importer/dist/plugin.js",
-  "icon": "icon.png",
+  "host": "https://webdev.kdjfs.de/colorslurp-importer/",
+  "code": "colorslurp-importer/plugin.js",
+  "icon": "/colorslurp-importer/icon.png",
   "permissions": ["library:read", "library:write"]
 }

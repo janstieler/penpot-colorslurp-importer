@@ -1,240 +1,219 @@
 import "./style.css";
 
-const i18n = {
-  de: {
-    title:        "ColorSlurp → Penpot",
-    sub:          "ColorSlurp JSON einfügen oder hineinfallen lassen",
-    btnNext:      "Weiter →",
-    btnImport:    "Importieren",
-    waiting:      "Warte auf JSON…",
-    importing:    "Importiere…",
-    palette:      "Palette",
-    colors:       "Farben",
-    selected:     "ausgewählt",
-    imported:     "Farben importiert",
-    errFormat:    "Kein 'name' oder 'colors'-Array gefunden",
-    recognized:   "Farben erkannt",
-    duplicate:    "bereits vorhanden",
-    prefix:       "Nummerierter Präfix (z. B. 01_Name)",
-    noneSelected: "Keine Farben ausgewählt",
-  },
-  en: {
-    title:        "ColorSlurp → Penpot",
-    sub:          "Paste or drop your ColorSlurp JSON here",
-    btnNext:      "Continue →",
-    btnImport:    "Import",
-    waiting:      "Waiting for JSON…",
-    importing:    "Importing…",
-    palette:      "Palette",
-    colors:       "colors",
-    selected:     "selected",
-    imported:     "colors imported",
-    errFormat:    "Missing 'name' or 'colors' array",
-    recognized:   "colors detected",
-    duplicate:    "already in library",
-    prefix:       "Numbered prefix (e.g. 01_Name)",
-    noneSelected: "No colors selected",
-  },
-};
+// ── Theme ────────────────────────────────────────────────────────────────
+const urlTheme = new URLSearchParams(window.location.search).get("theme");
+const darkMq = window.matchMedia("(prefers-color-scheme: dark)");
+document.body.dataset["theme"] = urlTheme ?? (darkMq.matches ? "dark" : "light");
+darkMq.addEventListener("change", (e) => {
+  document.body.dataset["theme"] = e.matches ? "dark" : "light";
+});
 
-type Lang = keyof typeof i18n;
 type Color = { name: string; hex: string; alpha?: number };
 type Palette = { name: string; colors: Color[] };
 
-const browserLang = (navigator.language || "en").split("-")[0].toLowerCase() as Lang;
-const t = i18n[browserLang] ?? i18n.en;
+const MAX_INPUT_BYTES = 512 * 1024;
 
 let parsed: Palette | null = null;
-let libraryColorNames: Set<string> = new Set();
-let selectedIndices: Set<number> = new Set();
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function setStatus(id: string, text: string, type: "info" | "success" | "error" = "info"): void {
-  const el = document.getElementById(id) as HTMLElement;
-  el.textContent = text;
-  el.className = "status " + type;
-}
-
-function showStep(step: 1 | 2): void {
-  (document.getElementById("step1") as HTMLElement).style.display = step === 1 ? "" : "none";
-  (document.getElementById("step2") as HTMLElement).style.display = step === 2 ? "" : "none";
-}
+let existingColorNames = new Set<string>();
+let selectedColors = new Set<string>();
 
 function stripTrailingCommas(str: string): string {
   return str.replace(/,\s*([}\]])/g, "$1");
 }
 
-function fullColorName(paletteName: string, colorName: string, index: number, usePrefix: boolean): string {
-  const prefix = usePrefix ? `${String(index + 1).padStart(2, "0")}_` : "";
-  return `${paletteName}/${prefix}${colorName}`;
+function setStatus1(text: string, type: "info" | "success" | "error" = "info"): void {
+  const el = document.getElementById("status1") as HTMLElement;
+  el.textContent = text;
+  el.className = "status " + type;
 }
 
-// ── Step 2: render swatches ───────────────────────────────────────────────────
+function setStatus2(text: string, type: "info" | "success" | "error" = "info"): void {
+  const el = document.getElementById("status2") as HTMLElement;
+  el.textContent = text;
+  el.className = "result-status " + type;
+}
 
-function renderSwatches(): void {
-  if (!parsed) return;
-
-  const usePrefix = (document.getElementById("usePrefix") as HTMLInputElement).checked;
-  const grid = document.getElementById("swatches") as HTMLElement;
-  grid.innerHTML = "";
-  selectedIndices.clear();
-
-  parsed.colors.forEach((c, i) => {
-    const name = fullColorName(parsed!.name, c.name, i, usePrefix);
-    const isDuplicate = libraryColorNames.has(name);
-
-    const wrapper = document.createElement("div");
-    wrapper.className = "swatch-wrapper" + (isDuplicate ? " duplicate" : " selected");
-    if (!isDuplicate) selectedIndices.add(i);
-
-    const dot = document.createElement("div");
-    dot.className = "swatch";
-    dot.style.background = c.hex;
-    dot.title = `${c.name}: ${c.hex}${isDuplicate ? ` (${t.duplicate})` : ""}`;
-
-    if (!isDuplicate) {
-      wrapper.addEventListener("click", () => {
-        const isSelected = wrapper.classList.toggle("selected");
-        if (isSelected) {
-          selectedIndices.add(i);
-        } else {
-          selectedIndices.delete(i);
-        }
-        updateImportButton();
-      });
-    }
-
-    wrapper.appendChild(dot);
-    grid.appendChild(wrapper);
+function showScreen2(): void {
+  const s1 = document.getElementById("screen1") as HTMLElement;
+  const s2 = document.getElementById("screen2") as HTMLElement;
+  s2.classList.remove("hidden");
+  s2.classList.add("slide-in");
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      s1.classList.add("hidden");
+      s2.classList.remove("slide-in");
+    });
   });
-
-  updateImportButton();
 }
 
-function updateImportButton(): void {
-  const count = selectedIndices.size;
-  const btn = document.getElementById("btnImport") as HTMLButtonElement;
-  btn.disabled = count === 0;
-  if (count === 0) {
-    setStatus("status2", t.noneSelected, "info");
-  } else {
-    setStatus("status2", `${count} ${t.colors} ${t.selected}`, "info");
-  }
+function showScreen1(): void {
+  const s1 = document.getElementById("screen1") as HTMLElement;
+  const s2 = document.getElementById("screen2") as HTMLElement;
+  s1.classList.remove("hidden");
+  s2.classList.add("hidden");
+  setStatus2("");
 }
 
-// ── Step 1: JSON parsing ──────────────────────────────────────────────────────
+// ── Input handling ───────────────────────────────────────────────────────
+const inputEl = document.getElementById("input") as HTMLTextAreaElement;
 
-function parseJson(raw: string): void {
-  if (!raw.trim()) {
-    setStatus("status1", t.waiting, "info");
-    (document.getElementById("input") as HTMLTextAreaElement).classList.remove("error");
-    (document.getElementById("btnNext") as HTMLButtonElement).disabled = true;
-    parsed = null;
+function processInput(raw: string): void {
+  parsed = null;
+  (document.getElementById("btnAnalyze") as HTMLButtonElement).disabled = true;
+  inputEl.classList.remove("error");
+
+  if (!raw.trim()) { setStatus1("Warte auf JSON…", "info"); return; }
+  if (raw.length > MAX_INPUT_BYTES) {
+    inputEl.classList.add("error");
+    setStatus1("⚠ Eingabe zu groß (max. 512 KB)", "error");
     return;
   }
+
   try {
-    const data = JSON.parse(stripTrailingCommas(raw));
-    if (!data.name || !Array.isArray(data.colors)) throw new Error(t.errFormat);
-    parsed = data as Palette;
-    (document.getElementById("input") as HTMLTextAreaElement).classList.remove("error");
-    setStatus("status1", `✓ ${parsed.colors.length} ${t.recognized}`, "success");
-    (document.getElementById("btnNext") as HTMLButtonElement).disabled = false;
-  } catch (err) {
-    (document.getElementById("input") as HTMLTextAreaElement).classList.add("error");
-    setStatus("status1", "⚠ " + (err as Error).message, "error");
-    (document.getElementById("btnNext") as HTMLButtonElement).disabled = true;
-    parsed = null;
+    parsed = JSON.parse(stripTrailingCommas(raw)) as Palette;
+    if (!parsed.name || !Array.isArray(parsed.colors)) throw new Error("Kein 'name' oder 'colors' Array gefunden");
+    if (parsed.colors.length > 2000) throw new Error("Zu viele Farben (max. 2000)");
+    setStatus1(`✓ ${parsed.colors.length} Farben erkannt`, "success");
+    (document.getElementById("btnAnalyze") as HTMLButtonElement).disabled = false;
+  } catch (e) {
+    inputEl.classList.add("error");
+    setStatus1("⚠ " + (e as Error).message, "error");
   }
 }
 
-// ── Events: Step 1 ───────────────────────────────────────────────────────────
+inputEl.addEventListener("input", (e) => processInput((e.target as HTMLTextAreaElement).value));
 
-const textarea = document.getElementById("input") as HTMLTextAreaElement;
-
-textarea.addEventListener("input", (e) => {
-  parseJson((e.target as HTMLTextAreaElement).value);
-});
-
-textarea.addEventListener("dragover", (e) => e.preventDefault());
-textarea.addEventListener("drop", (e) => {
+inputEl.addEventListener("dragover", (e) => e.preventDefault());
+inputEl.addEventListener("drop", (e) => {
   e.preventDefault();
   const file = e.dataTransfer?.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (ev) => {
-    textarea.value = ev.target?.result as string;
-    parseJson(textarea.value);
+    inputEl.value = ev.target?.result as string;
+    processInput(inputEl.value);
   };
   reader.readAsText(file);
 });
 
-(document.getElementById("btnNext") as HTMLButtonElement).addEventListener("click", () => {
+// ── Screen 2 ────────────────────────────────────────────────────────────
+function updateImportButton(): void {
   if (!parsed) return;
-  parent.postMessage({ type: "get-library-colors" }, "*");
-});
+  const btn = document.getElementById("btnImportColors") as HTMLButtonElement;
+  const count = selectedColors.size;
+  const total = parsed.colors.length;
+  (document.getElementById("paletteCount") as HTMLElement).textContent = `${count} von ${total} Farben ausgewählt`;
+  if (count === 0) {
+    btn.textContent = parsed.colors.every(c => existingColorNames.has(`${parsed!.name}/${c.name}`))
+      ? "Alle Farben bereits vorhanden"
+      : "Keine Farben ausgewählt";
+    btn.disabled = true;
+  } else {
+    btn.textContent = `${count} Farbe${count !== 1 ? "n" : ""} importieren`;
+    btn.disabled = false;
+  }
+}
 
-// ── Events: Step 2 ───────────────────────────────────────────────────────────
+function renderSwatches(): void {
+  if (!parsed) return;
+  const grid = document.getElementById("swatches") as HTMLElement;
+  grid.innerHTML = "";
+  parsed.colors.forEach((c) => {
+    const fullName = `${parsed!.name}/${c.name}`;
+    const exists = existingColorNames.has(fullName);
+    const el = document.createElement("div");
 
-(document.getElementById("btnBack") as HTMLButtonElement).addEventListener("click", () => {
-  showStep(1);
-});
+    if (exists) {
+      el.className = "swatch exists";
+      el.title = `${c.name} (bereits vorhanden)`;
+    } else {
+      const selected = selectedColors.has(fullName);
+      el.className = "swatch new" + (selected ? "" : " deselected");
+      el.title = c.name;
+      el.addEventListener("click", () => {
+        if (selectedColors.has(fullName)) {
+          selectedColors.delete(fullName);
+        } else {
+          selectedColors.add(fullName);
+        }
+        el.classList.toggle("deselected");
+        updateImportButton();
+      });
+    }
 
-(document.getElementById("usePrefix") as HTMLInputElement).addEventListener("change", () => {
-  renderSwatches();
-});
-
-(document.getElementById("btnImport") as HTMLButtonElement).addEventListener("click", () => {
-  if (!parsed || selectedIndices.size === 0) return;
-
-  const usePrefix = (document.getElementById("usePrefix") as HTMLInputElement).checked;
-  const colors = Array.from(selectedIndices).map((i) => {
-    const c = parsed!.colors[i];
-    return {
-      name:  fullColorName(parsed!.name, c.name, i, usePrefix),
-      hex:   c.hex,
-      alpha: c.alpha ?? 1,
-    };
+    el.style.background = c.hex;
+    grid.appendChild(el);
   });
+}
 
-  (document.getElementById("btnImport") as HTMLButtonElement).disabled = true;
-  setStatus("status2", t.importing, "info");
-  parent.postMessage({ type: "import-colors", colors }, "*");
+(document.getElementById("btnAnalyze") as HTMLButtonElement).addEventListener("click", () => {
+  if (!parsed) return;
+  (document.getElementById("paletteName") as HTMLElement).textContent = parsed.name;
+  (document.getElementById("paletteCount") as HTMLElement).textContent = `${parsed.colors.length} Farben`;
+
+  existingColorNames = new Set();
+  selectedColors = new Set(parsed.colors.map(c => `${parsed!.name}/${c.name}`));
+  renderSwatches();
+  updateImportButton();
+  setStatus2("Prüfe bestehende Farben…", "info");
+  showScreen2();
+
+  parent.postMessage({ type: "check-colors" }, "*");
 });
 
-// ── Penpot messages ───────────────────────────────────────────────────────────
+(document.getElementById("btnBack") as HTMLButtonElement).addEventListener("click", showScreen1);
 
+(document.getElementById("btnSelectAll") as HTMLButtonElement).addEventListener("click", () => {
+  if (!parsed) return;
+  parsed.colors.forEach(c => {
+    const fullName = `${parsed!.name}/${c.name}`;
+    if (!existingColorNames.has(fullName)) selectedColors.add(fullName);
+  });
+  renderSwatches();
+  updateImportButton();
+});
+
+(document.getElementById("btnImportColors") as HTMLButtonElement).addEventListener("click", () => {
+  if (!parsed || selectedColors.size === 0) return;
+  const colors = parsed.colors.filter(c => selectedColors.has(`${parsed!.name}/${c.name}`));
+  const numberedPrefix = (document.getElementById("chkPrefix") as HTMLInputElement).checked;
+  (document.getElementById("btnImportColors") as HTMLButtonElement).disabled = true;
+  setStatus2("Importiere…", "info");
+  parent.postMessage({ type: "import-colors", paletteName: parsed.name, colors, numberedPrefix }, "*");
+});
+
+// ── Penpot messages ──────────────────────────────────────────────────────
 window.addEventListener("message", (e: MessageEvent) => {
-  const msg = e.data as { type: string; count?: number; colors?: { name: string }[] };
+  if (e.source !== window.parent) return;
+  if (e.data?.theme && !e.data?.type) {
+    document.body.dataset["theme"] = e.data.theme;
+    return;
+  }
+  const msg = e.data as { type: string; names?: string[]; count?: number; skipped?: number };
 
-  if (msg.type === "library-colors") {
-    libraryColorNames = new Set((msg.colors ?? []).map((c) => c.name));
-
-    const nameEl = document.getElementById("paletteName") as HTMLElement;
-    nameEl.textContent = "";
-    const strong = document.createElement("strong");
-    strong.textContent = parsed!.name;
-    nameEl.append(`${t.palette}: `, strong, ` · ${parsed!.colors.length} ${t.colors}`);
-
+  if (msg.type === "existing-colors" && msg.names) {
+    // Strip numbered prefix ("01_", "18_") from color name part for duplicate matching
+    existingColorNames = new Set(msg.names.map(n => n.replace(/^(.+\/)(\d+_)/, "$1")));
+    if (parsed) {
+      parsed.colors.forEach(c => {
+        if (existingColorNames.has(`${parsed!.name}/${c.name}`)) selectedColors.delete(`${parsed!.name}/${c.name}`);
+      });
+      const skipped = parsed.colors.filter(c => existingColorNames.has(`${parsed!.name}/${c.name}`)).length;
+      setStatus2(skipped > 0 ? `${skipped} Farbe${skipped !== 1 ? "n" : ""} bereits vorhanden` : "", "info");
+    }
     renderSwatches();
-    showStep(2);
+    updateImportButton();
   }
 
   if (msg.type === "done") {
-    setStatus("status2", `✅ ${msg.count ?? 0} ${t.imported}`, "success");
-    (document.getElementById("btnImport") as HTMLButtonElement).disabled = false;
+    const text = (msg.skipped ?? 0) > 0
+      ? `✅ ${msg.count} importiert, ${msg.skipped} übersprungen`
+      : `✅ ${msg.count} Farben importiert`;
+    setStatus2(text, "success");
+    if (parsed) {
+      existingColorNames = new Set([...existingColorNames, ...parsed.colors.map(c => `${parsed!.name}/${c.name}`)]);
+    }
+    renderSwatches();
+    updateImportButton();
   }
 });
-
-// ── Init ──────────────────────────────────────────────────────────────────────
-
-function applyTranslations(): void {
-  (document.getElementById("i18n-title") as HTMLElement).textContent    = t.title;
-  (document.getElementById("i18n-sub") as HTMLElement).textContent      = t.sub;
-  (document.getElementById("btnNext") as HTMLButtonElement).textContent = t.btnNext;
-  (document.getElementById("btnImport") as HTMLButtonElement).textContent = t.btnImport;
-  (document.getElementById("i18n-prefix") as HTMLElement).textContent   = t.prefix;
-  setStatus("status1", t.waiting, "info");
-}
-
-applyTranslations();
