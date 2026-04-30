@@ -1,0 +1,11 @@
+{
+  "name": "ColorSlurp Importer",
+  "description": "Importiert ColorSlurp-Paletten in die Penpot Color Library",
+  "code": "/penpot-colorslurp-importer/plugin.js",
+  "icon": "/penpot-colorslurp-importer/icon.png",
+  "permissions": [
+    "content:read",
+    "library:read",
+    "library:write"
+  ]
+}
