@@ -72,9 +72,9 @@ npm install
 npm run dev
 ```
 
-The plugin UI is served at `http://localhost:4400`. Load it in Penpot via:
+The plugin UI is served at `http://localhost:4400`. Load it in Penpot via your local server's manifest URL, e.g.:
 ```
-https://webdev.kdjfs.de/colorslurp-importer/manifest.json
+http://localhost:4400/manifest.json
 ```
 
 ### Build
