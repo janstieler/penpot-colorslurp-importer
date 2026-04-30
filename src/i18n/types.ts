@@ -1,0 +1,28 @@
+export type Translations = {
+  subtitle: string;
+  placeholder: string;
+  statusWaiting: string;
+  btnNext: string;
+  btnBack: string;
+  btnSelectAll: string;
+  colorAssetsTitle: string;
+  colorAssetsDesc: string;
+  prefixLabel: string;
+  designTokensTitle: string;
+  designTokensDesc: string;
+  btnTokenImport: string;
+  errTooBig: string;
+  errInvalidFormat: string;
+  errTooManyColors: string;
+  colorsDetected: (n: number) => string;
+  checkingColors: string;
+  selectionCount: (selected: number, total: number) => string;
+  allExisting: string;
+  noneSelected: string;
+  importBtn: (n: number) => string;
+  alreadyExists: string;
+  importing: string;
+  existingInfo: (n: number) => string;
+  doneWithSkipped: (count: number, skipped: number) => string;
+  doneSimple: (count: number) => string;
+};
