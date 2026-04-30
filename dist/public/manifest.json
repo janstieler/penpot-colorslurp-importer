@@ -1,8 +1,0 @@
-{
-  "name": "ColorSlurp Importer",
-  "description": "Importiert ColorSlurp-Paletten in die Penpot Color Library",
-  "host": "http://10.8.0.1:5000",
-  "code": "plugin.js",
-  "icon": "/icon.png",
-  "permissions": ["library:read", "library:write"]
-}
