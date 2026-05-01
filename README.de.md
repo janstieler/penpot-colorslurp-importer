@@ -14,6 +14,7 @@ Farbpaletten aus [ColorSlurp](https://colorslurp.com) in Sekunden nach [Penpot](
 - Auswählbare Swatches — genau festlegen, welche Farben importiert werden sollen
 - Optionaler nummerierter Präfix, um die ursprüngliche Palettenreihenfolge beizubehalten (z. B. `01_Himmel`, `02_Ozean`)
 - Hell- und Dunkel-Theme folgt der Penpot-Einstellung
+- Verfügbar auf Englisch und Deutsch — wird automatisch anhand der Browser- oder Penpot-Spracheinstellung erkannt, manuell umschaltbar über das Globus-Icon
 - Keine externen Abhängigkeiten zur Laufzeit
 
 ## Installation
@@ -50,6 +51,10 @@ In ColorSlurp die gewünschte Palette öffnen und als **JSON** exportieren. Die 
 4. Farben, die bereits in der Bibliothek vorhanden sind, werden ausgegraut und abgewählt
 5. Optional **nummerierten Präfix** aktivieren, um die Palettenreihenfolge in Penpot zu erhalten
 6. Gewünschte Farben auswählen und auf **Importieren** klicken
+
+### Sprache
+
+Das Plugin ist auf **Englisch** und **Deutsch** verfügbar. Die Sprache wird automatisch anhand der Browser- oder Penpot-Spracheinstellung erkannt. Über das Globus-Icon unten rechts im Footer lässt sich die Sprache manuell umschalten — die Auswahl wird für künftige Sitzungen gespeichert.
 
 ## Entwicklung
 

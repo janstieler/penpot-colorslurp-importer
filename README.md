@@ -14,6 +14,7 @@ Bring your color palettes from [ColorSlurp](https://colorslurp.com) into [Penpot
 - Selectable swatches — choose exactly which colors to import
 - Optional numbered prefix to preserve the original palette order (e.g. `01_Sky`, `02_Ocean`)
 - Light and dark theme, follows Penpot's UI setting
+- Available in English and German — auto-detected from your browser or Penpot locale, switchable via the globe icon
 - No external dependencies at runtime
 
 ## Installation
@@ -50,6 +51,10 @@ In ColorSlurp, open your palette and export it as **JSON**. The file looks like 
 4. Colors already present in your library are greyed out and deselected
 5. Optionally enable **numbered prefix** to keep the palette order intact in Penpot
 6. Select the colors you want and click **Import**
+
+### Language
+
+The plugin is available in **English** and **German**. The language is auto-detected from your browser locale or Penpot's language setting. Use the globe icon in the bottom-right footer to switch manually — your choice is saved for future sessions.
 
 ## Development
 
