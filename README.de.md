@@ -105,7 +105,7 @@ Das Plugin benötigt folgende Penpot-Berechtigungen:
 | `library:write` | Neue Farben zur lokalen Bibliothek hinzufügen |
 
 ## Unterstützung
-Wenn Ihr mich unetrstützen wollt: [buymeacoffee.com/janstieler](buymeacoffee.com/janstieler).
+Wenn Ihr mich unetrstützen wollt: [buymeacoffee.com/janstieler](https://buymeacoffee.com/janstieler).
 
 ## Lizenz
 
