@@ -104,6 +104,9 @@ The plugin requests the following Penpot permissions:
 | `library:read` | Check for already imported colors |
 | `library:write` | Add new colors to the local library |
 
+## Support
+If you want to support me [buymeacoffee.com/janstieler](buymeacoffee.com/janstieler).
+
 ## License
 
 MIT — © 2026 [Jan-Frederik Stieler](https://www.janstieler.de)
