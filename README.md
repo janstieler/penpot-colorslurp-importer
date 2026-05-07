@@ -105,7 +105,7 @@ The plugin requests the following Penpot permissions:
 | `library:write` | Add new colors to the local library |
 
 ## Support
-If you want to support me [buymeacoffee.com/janstieler](buymeacoffee.com/janstieler).
+If you want to support me [buymeacoffee.com/janstieler](https://buymeacoffee.com/janstieler).
 
 ## License
 
