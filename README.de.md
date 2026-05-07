@@ -104,6 +104,9 @@ Das Plugin benötigt folgende Penpot-Berechtigungen:
 | `library:read` | Bereits importierte Farben erkennen |
 | `library:write` | Neue Farben zur lokalen Bibliothek hinzufügen |
 
+## Unterstützung
+Wenn Ihr mich unetrstützen wollt: [buymeacoffee.com/janstieler](buymeacoffee.com/janstieler).
+
 ## Lizenz
 
 MIT — © 2026 [Jan-Frederik Stieler](https://www.janstieler.de)
